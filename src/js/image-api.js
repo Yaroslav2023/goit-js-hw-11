@@ -5,10 +5,6 @@ let page = 1;
 
 async function searchImg (query) {
 
-    if(page !== 1) {
-        return
-    }
-
     try {
         const response = await axios.get(`${BASE_URL}`, { params: {
             key: '37885243-7291bb9e2bd4e4c8b3d9bfd2b',
@@ -20,6 +16,7 @@ async function searchImg (query) {
             page: page,
         }
         });
+        page += 1;
         return response
     } catch (error) {
         console.error(error);
@@ -28,7 +25,7 @@ async function searchImg (query) {
 };
 
 async function loadMoreImg (query) {
-    page += 1;
+
 
     try {
         const response = await axios.get(`${BASE_URL}`, { params: {
@@ -48,7 +45,7 @@ async function loadMoreImg (query) {
     
 };
 
-export { searchImg };
+export { searchImg, loadMoreImg };
 
 
 // const API_KEY = "37885243-7291bb9e2bd4e4c8b3d9bfd2b";
