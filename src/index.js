@@ -1,4 +1,7 @@
-import { searchImg, loadMoreImg } from "./js/image-api";
+import { searchImg, loadMoreImgApi } from "./js/image-api";
+import Notiflix from 'notiflix';
+
+
 
 const formEl = document.querySelector('.search-form');
 const btnLoadMore = document.querySelector('.load-more');
@@ -6,6 +9,7 @@ const inputEl = document.querySelector('.search-form input');
 const galleryEl = document.querySelector('.gallery');
 
 let searchQuery = '';
+btnLoadMore.classList.add('visually-hidden');
 
 formEl.addEventListener('submit', querySubmit);
 
@@ -15,13 +19,33 @@ async function querySubmit (event) {
     event.preventDefault();
     galleryEl.innerHTML = '';
     searchQuery = inputEl.value;
-    const resp = await searchImg(searchQuery).then(( {data} ) => creatImagesMurkup(data.hits)).catch(error => console.log(error));
-    
+    btnLoadMore.classList.add('visually-hidden');
+
+    if(searchQuery === "") {
+      return
+    }
+    const resp = await searchImg(searchQuery).then(( {data} ) => {
+      creatImagesMurkup(data.hits);
+      Notiflix.Notify.info(`Hooray! We found ${data.totalHits} images.`, 2000);
+      if(data.hits.length === 40) {
+        btnLoadMore.classList.remove('visually-hidden');};
+      if(data.hits.length === 0) {
+        btnLoadMore.classList.add('visually-hidden');
+        throw new Error(response.status);}
+    }).catch(error => Notiflix.Notify.failure("Sorry, there are no images matching your search query. Please try again.", 2000));
 };
 
-function loadMoreImg (event) {
-  console.log('Hi');
-  // const respLoadMore = await searchImg(searchQuery).then(( {data} ) => creatImagesMurkup(data.hits)).catch(error => console.log(error));
+async function loadMoreImg () {
+  btnLoadMore.classList.add('visually-hidden');
+  const respLoadMore = await loadMoreImgApi(searchQuery).then(({ data }) => {
+    creatImagesMurkup(data.hits)
+    if (data.hits.length === 40) {
+      btnLoadMore.classList.remove('visually-hidden');
+    };
+    if (data.hits.length < 40) {
+      Notiflix.Notify.info("We're sorry, but you've reached the end of search results.", 2000);
+    }
+  }).catch(error => console.log(error));
 };
 
 
